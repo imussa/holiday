@@ -1,25 +1,32 @@
 from django.db import models
 
 
-class UserInfo(models.Model):
-    user_type_choices = (
-        (1, '普通用户'),
-        (2, '管理员'),
+WORKDAY_CODE = 1
+HOLIDAY_CODE = 2
+WEEKEND_CODE = 3
+
+
+class Date(models.Model):
+    DATE_TYPE_CHOICES = (
+        (1, "元旦"),
+        (2, "春节"),
+        (3, "清明节"),
+        (4, "劳动节"),
+        (5, "端午节"),
+        (6, "中秋节"),
+        (7, "国庆节"),
+        (8, "调休"),
     )
-    user_type = models.IntegerField(choices=user_type_choices, default=1)
-    username = models.CharField(max_length=32, unique=True)
-    password = models.CharField(max_length=64)
+    date = models.DateField()
+    store_date_type = models.IntegerField(choices=DATE_TYPE_CHOICES)
+    date_code = models.IntegerField(default=HOLIDAY_CODE)
 
+    @property
+    def date_type(self):
+        return self.get_store_date_type_display()
 
-class UserToken(models.Model):
-    user = models.OneToOneField(to='UserInfo', on_delete=models.CASCADE, related_name='token')
-    token = models.CharField(max_length=64)
-
-
-class Words(models.Model):
-    word = models.CharField(max_length=32, unique=True)
-
-
-class Translates(models.Model):
-    translate = models.CharField(max_length=128)
-    word = models.ForeignKey(Words, related_name='translates', on_delete=models.CASCADE)
+    @date_type.setter
+    def date_type(self, data):
+        self.store_date_type = data
+        if data == 8:
+            self.date_code = WORKDAY_CODE

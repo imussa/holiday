@@ -5,10 +5,14 @@ from collections import OrderedDict
 import datetime
 from . import models
 from . import serializers
+from . import authentication
 
 
 class HolidayView(APIView):
+    authentication_classes = [authentication.QueryTokenAuthentication]
+
     def get(self, request, *args, **kwargs):
+        print(request.user, request.auth)
         date = request.query_params.get('date', datetime.date.today())
         if not isinstance(date, datetime.date):
             try:
